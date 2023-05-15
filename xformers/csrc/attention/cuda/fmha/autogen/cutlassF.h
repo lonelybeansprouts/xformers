@@ -85,11 +85,11 @@ fmha_cutlassF_f16_notaligned_32x128_gmem_sm70(typename AttentionKernel<cutlass::
 
 template <typename T> void dispatch_cutlassF_f16_sm70(T cb, int cc) {
     cb(AttentionKernel<cutlass::half_t, cutlass::arch::Sm70, true, 64, 64, true, true, true>(), fmha_cutlassF_f16_aligned_64x64_rf_sm70);
-    cb(AttentionKernel<cutlass::half_t, cutlass::arch::Sm70, true, 32, 128, true, true, true>(), fmha_cutlassF_f16_aligned_32x128_rf_sm70);
-    cb(AttentionKernel<cutlass::half_t, cutlass::arch::Sm70, true, 32, 128, false, true, true>(), fmha_cutlassF_f16_aligned_32x128_gmem_sm70);
-    cb(AttentionKernel<cutlass::half_t, cutlass::arch::Sm70, false, 64, 64, true, true, true>(), fmha_cutlassF_f16_notaligned_64x64_rf_sm70);
-    cb(AttentionKernel<cutlass::half_t, cutlass::arch::Sm70, false, 32, 128, true, true, true>(), fmha_cutlassF_f16_notaligned_32x128_rf_sm70);
-    cb(AttentionKernel<cutlass::half_t, cutlass::arch::Sm70, false, 32, 128, false, true, true>(), fmha_cutlassF_f16_notaligned_32x128_gmem_sm70);
+    // cb(AttentionKernel<cutlass::half_t, cutlass::arch::Sm70, true, 32, 128, true, true, true>(), fmha_cutlassF_f16_aligned_32x128_rf_sm70);
+    // cb(AttentionKernel<cutlass::half_t, cutlass::arch::Sm70, true, 32, 128, false, true, true>(), fmha_cutlassF_f16_aligned_32x128_gmem_sm70);
+    // cb(AttentionKernel<cutlass::half_t, cutlass::arch::Sm70, false, 64, 64, true, true, true>(), fmha_cutlassF_f16_notaligned_64x64_rf_sm70);
+    // cb(AttentionKernel<cutlass::half_t, cutlass::arch::Sm70, false, 32, 128, true, true, true>(), fmha_cutlassF_f16_notaligned_32x128_rf_sm70);
+    // cb(AttentionKernel<cutlass::half_t, cutlass::arch::Sm70, false, 32, 128, false, true, true>(), fmha_cutlassF_f16_notaligned_32x128_gmem_sm70);
 }
 
 // ======== f16 / sm75 ========
@@ -275,6 +275,10 @@ template <typename T> void dispatch_cutlassF_f32_sm80(T cb, int cc) {
 
 template <typename DT, typename T>
 void dispatch_cutlassF(T cb, int cc = 0) {
+    std::cout<<"cc:"<<cc<<"\n";
+    dispatch_cutlassF_f16_sm70(cb, cc);
+    return;
+
 
     if (std::is_same<DT, cutlass::bfloat16_t>::value && 80 <= cc && cc < 90) {
         dispatch_cutlassF_bf16_sm80(cb, cc);
@@ -283,7 +287,6 @@ void dispatch_cutlassF(T cb, int cc = 0) {
         dispatch_cutlassF_f16_sm50(cb, cc);
     }
     if (std::is_same<DT, cutlass::half_t>::value && 70 <= cc && cc < 75) {
-        dispatch_cutlassF_f16_sm70(cb, cc);
     }
     if (std::is_same<DT, cutlass::half_t>::value && 75 <= cc && cc < 80) {
         dispatch_cutlassF_f16_sm75(cb, cc);

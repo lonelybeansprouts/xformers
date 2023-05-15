@@ -1,0 +1,3 @@
+TORCH_CUDA_ARCH_LIST=7.0 XFORMERS_DISABLE_FLASH_ATTN=1 pip3 install -e .
+
+python3 test.py

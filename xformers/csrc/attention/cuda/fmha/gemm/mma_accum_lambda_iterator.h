@@ -5,6 +5,7 @@
 #include "cutlass/gemm/warp/mma_tensor_op_tile_iterator_sm70.h"
 #include "cutlass/gemm/warp/mma_tensor_op_tile_iterator_sm80.h"
 #include "cutlass/matrix_shape.h"
+#include "cutlass/debug.h"
 
 /*
 TensorCores have different accumulator layouts.
@@ -122,11 +123,18 @@ struct AccumLambdaIteratorSm70 {
       accum_n =
           ((quad >> 1) & 0x1) * kElementsPerPartial * kAccumulatorPatials +
           (lane_in_quad & 2);
+      CUDA_LOG("%s", "xxxxx");
+
     } else {
       accum_m = (((quad & 0x4) >> 1) + (quad & 0x1)) * 8 +
           lane_in_quad; // (quad[2],quad[0])
       accum_n = ((quad >> 1) & 0x1) * kElementsPerPartial * kAccumulatorPatials;
+      CUDA_LOG("%s", "yyyyy");
+
     }
+
+      CUDA_LOG("get_lane_offset %d %d %d\n", lane_id, accum_m, accum_n);
+
     return cutlass::MatrixCoord(
         accum_m + tile_offset.row() * Shape::kRow,
         accum_n + tile_offset.column() * Shape::kColumn);
@@ -162,7 +170,7 @@ struct AccumLambdaIteratorSm70 {
           int accum_m = tile_m * Policy::InterleavedTile::kRow +
               mma_m * QuadShapePerPatialMma::kRow + m * 2 + lane_offset.row();
           beginRow(accum_m);
-
+          
           CUTLASS_PRAGMA_UNROLL
           for (int tile_n = 0; tile_n < Policy::TileIterations::kColumn;
                ++tile_n) {
@@ -182,7 +190,7 @@ struct AccumLambdaIteratorSm70 {
                       kElementsPerMma;
                   int accum_n = tile_n * Policy::InterleavedTile::kColumn +
                       mma_n * QuadShapePerPatialMma::kColumn +
-                      p * Policy::InterleavedTile::kColumn / 2 + n +
+                      p * Policy::InterleavedTile::kColumn / 2 + n +  //for fp16 each thread' col number diff of the first 4 elements and last 4 elements is Policy::InterleavedTile::kColumn/2 (16)
                       lane_offset.column();
                   int idx = mma_accum_start + p * kElementsPerPartial +
                       m * EleShapePerPatial::kColumn + n;

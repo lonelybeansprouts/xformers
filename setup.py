@@ -175,6 +175,7 @@ def get_flash_attention_extensions(cuda_version: int, extra_compile_args):
                     Path(flash_root) / "csrc" / "flash_attn",
                     Path(flash_root) / "csrc" / "flash_attn" / "src",
                     Path(this_dir) / "third_party" / "cutlass" / "include",
+                    Path(this_dir) / "third_party" / "cutlass" / "tools" / "util" / "include",
                 ]
             ],
         )
@@ -189,6 +190,8 @@ def get_extensions():
 
     sputnik_dir = os.path.join(this_dir, "third_party", "sputnik")
     cutlass_dir = os.path.join(this_dir, "third_party", "cutlass", "include")
+    cutlass_tool_dir = os.path.join(this_dir, "third_party", "cutlass", "tools", "util", "include")
+
     cutlass_examples_dir = os.path.join(this_dir, "third_party", "cutlass", "examples")
     if not os.path.exists(cutlass_dir):
         raise RuntimeError(
@@ -219,7 +222,7 @@ def get_extensions():
     ):
         extension = CUDAExtension
         sources += source_cuda
-        include_dirs += [sputnik_dir, cutlass_dir, cutlass_examples_dir]
+        include_dirs += [sputnik_dir, cutlass_dir, cutlass_tool_dir, cutlass_examples_dir]
         nvcc_flags = [
             "-DHAS_PYTORCH",
             "--use_fast_math",
